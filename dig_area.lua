@@ -15,13 +15,13 @@ if x == 0 or y == 0 or z == 0 then
     return
 end
 if x < 1 then
-    x = x + 1
+    x = x + 2
 end
 if y < 1 then
-    y = y + 1
+    y = y + 2
 end
 if z < 1 then
-    z = z + 1
+    z = z + 2
 end
 
 local invert_x, invert_y, invert_z = x < 1, y < 1, z < 1
@@ -120,5 +120,5 @@ while position.get_table()[1] ~= 1 do
     position.forward()
 end
 dig_y_volume()
-position.turn_to(plus_x)
+position.turn_to(1)
 position.back()
