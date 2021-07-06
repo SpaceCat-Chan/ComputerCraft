@@ -76,7 +76,7 @@ function dig_z_area()
     position.turn_to(minus_z)
     while position.get_table()[3] ~= 1 do
         turtle.dig()
-        turtle.forward()
+        position.forward()
     end
 end
 
