@@ -41,6 +41,9 @@ position.override(0, 1, 1, 1, "", "")
 
 
 function dig_x_line()
+    if x == 1 then
+        return
+    end
     position.turn_to(plus_x)
     while position.get_table()[1] ~= x do
         turtle.dig()
@@ -54,6 +57,9 @@ function dig_x_line()
 end
 
 function dig_z_area()
+    if z == 1 then
+        return
+    end
     local next_z
     if not invert_z then
         next_z = 2
