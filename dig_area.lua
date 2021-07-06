@@ -73,6 +73,7 @@ function dig_z_area()
             next_z = next_z - 1
         end
     end
+    dig_x_line()
     position.turn_to(minus_z)
     while position.get_table()[3] ~= 1 do
         turtle.dig()
@@ -83,9 +84,9 @@ end
 function dig_y_volume()
     local next_y
     if y < 1 then
-        next_y = 2
-    else
         next_y = 0
+    else
+        next_y = 2
     end
     while position.get_table()[2] ~= y do
         dig_z_area()
@@ -98,11 +99,12 @@ function dig_y_volume()
             plus_y()
         end
         if y < 1 then
-            next_y = next_y + 1
-        else
             next_y = next_y - 1
+        else
+            next_y = next_y + 1
         end
     end
+    dig_z_area()
     while position.get_table()[2] ~= 1 do
         if y < 1 then
             turtle.digUp()
