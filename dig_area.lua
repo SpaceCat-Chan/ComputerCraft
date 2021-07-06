@@ -2,12 +2,12 @@ local position = require("position")
 
 local arg = {...}
 if #arg < 3 then
-    print("Usage: x y z")
+    print("Usage: x y z 1")
     return
 end
 local x, y, z = tonumber(arg[1]), tonumber(arg[2]) tonumber(arg[3])
 if x == nil or y == nil or z == nil then
-    print("Usage: x y z")
+    print("Usage: x y z 2")
     return
 end
 
