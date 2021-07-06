@@ -7,6 +7,7 @@ if #arg < 3 then
 end
 local x, y, z = tonumber(arg[1]), tonumber(arg[2]) tonumber(arg[3])
 if x == nil or y == nil or z == nil then
+    print(arg[0], arg[1], arg[2], arg[3], arg[4])
     print("Usage: x y z 2")
     return
 end
