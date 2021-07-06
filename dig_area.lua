@@ -14,7 +14,15 @@ end
 if x == 0 or y == 0 or z == 0 then
     return
 end
-x, y, z = x - 1, y - 1, z - 1
+if x < 1 then
+    x = x + 1
+end
+if y < 1 then
+    y = y + 1
+end
+if z < 1 then
+    z = z + 1
+end
 
 local invert_x, invert_y, invert_z = x < 1, y < 1, z < 1
 
