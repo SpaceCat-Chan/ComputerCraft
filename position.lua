@@ -35,29 +35,29 @@ function instance.turn_to(target_o)
     if target_o - o == 0 then
         return
     end
-    if target_o - o == -1 then
-        instance.turnRight()
-        return
-    end
-    if target_o - o == -2 then
-        instance.turnRight()
-        instance.turnRight()
-        return
-    end
-    if target_o - o == -3 then
-        instance.turnLeft()
-        return
-    end
     if target_o - o == 1 then
-        instance.turnLeft()
+        instance.turnRight()
         return
     end
     if target_o - o == 2 then
+        instance.turnRight()
+        instance.turnRight()
+        return
+    end
+    if target_o - o == 3 then
+        instance.turnLeft()
+        return
+    end
+    if target_o - o == -1 then
+        instance.turnLeft()
+        return
+    end
+    if target_o - o == -2 then
         instance.turnLeft()
         instance.turnLeft()
         return
     end
-    if target_o - o == 3 then
+    if target_o - o == -3 then
         instance.turnRight()
         return
     end
