@@ -66,6 +66,7 @@ end
 
 function dig_z_area()
     if z == 1 then
+        dig_x_line()
         return
     end
     local next_z
