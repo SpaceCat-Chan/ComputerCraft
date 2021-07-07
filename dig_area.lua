@@ -39,6 +39,11 @@ end
 
 position.override(0, 1, 1, 1, "", "")
 
+function check_fuel()
+    while turtle.getFuelLevel() == 0 do
+        shell.execute("refuel", "all")
+    end
+end 
 
 function dig_x_line()
     if x == 1 then
@@ -48,11 +53,13 @@ function dig_x_line()
     while position.get_table()[1] ~= x do
         turtle.dig()
         position.forward()
+        check_fuel()
     end
     position.turn_to(minus_x)
     while position.get_table()[1] ~= 1 do
         turtle.dig()
         position.forward()
+        check_fuel()
     end
 end
 
@@ -72,6 +79,7 @@ function dig_z_area()
         while position.get_table()[3] ~= next_z do
             turtle.dig()
             position.forward()
+            check_fuel()
         end
         if not invert_z then
             next_z = next_z + 1
@@ -84,6 +92,7 @@ function dig_z_area()
     while position.get_table()[3] ~= 1 do
         turtle.dig()
         position.forward()
+        check_fuel()
     end
 end
 
@@ -103,6 +112,7 @@ function dig_y_volume()
                 turtle.digUp()
             end
             plus_y()
+            check_fuel()
         end
         if y < 1 then
             next_y = next_y - 1
@@ -118,12 +128,14 @@ function dig_y_volume()
             turtle.digDown()
         end
         minus_y()
+        check_fuel()
     end
 end
 
 while position.get_table()[1] ~= 1 do
     turtle.dig()
     position.forward()
+    check_fuel()
 end
 dig_y_volume()
 position.turn_to(1)
