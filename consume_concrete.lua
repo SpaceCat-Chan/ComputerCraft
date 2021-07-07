@@ -1,6 +1,7 @@
 function find_powder()
     for x=1,16 do
-        if turtle.getItemDetail(x).name == "minecraft:concrete_powder" then
+        local slot = turtle.getItemDetail(x)
+        if slot and slot.name == "minecraft:concrete_powder" then
             return x
         end
     end
