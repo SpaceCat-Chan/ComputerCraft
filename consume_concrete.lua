@@ -18,6 +18,6 @@ end
 
 local curr_slot = find_powder()
 while curr_slot ~= 0 do
-    consume_powder_stack(slot)
+    consume_powder_stack(curr_slot)
     curr_slot = find_powder()
 end
