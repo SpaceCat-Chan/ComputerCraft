@@ -42,6 +42,7 @@ position.override(0, 1, 1, 1, "", "")
 function check_fuel()
     while turtle.getFuelLevel() == 0 do
         shell.execute("refuel", "all")
+        coroutine.yield()
     end
 end 
 
