@@ -11,7 +11,9 @@ end
 
 while true do
     local _, _, _, sender, mesg, _ = os.pullEvent("modem_message")
+    print("received message: ", mesg)
     if mesg == verify_token then
+    print("opening door")
         open_door()
     end
 end
