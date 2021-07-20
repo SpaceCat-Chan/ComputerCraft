@@ -3,17 +3,17 @@ local cfa = require"cfa"
 local a = cfa.var("hello,")
 local b = cfa.var(" world!")
 
-cfa.call(print, a..b)
+cfa.call_once_or_more(print, a..b)
 
 local add = cfa.func(function(cfa)
     return cfa.arg() + cfa.arg()
 end)
 
-cfa.call(print, add(2, 2))
+cfa.call_once_or_more(print, add(2, 2))
 
 local number = cfa.var(0)
 cfa.while_(number < 10, function(cfa)
-    cfa.call(print, number)
+    cfa.call_once_or_more(print, number)
     number.a = number + 1
 end)
 
@@ -22,10 +22,10 @@ local complex_function = cfa.func(function(cfa)
         return cfa.null
         -- cfa.null returns from the outer function
     end, function(cfa)
-        -- nil return is treated as the if statement not doing anything special
         return nil
+        -- nil return is treated as the if statement not doing anything special
     end)
-    cfa.call(print, cfa.arg())
+    cfa.call_once_or_more(print, cfa.arg())
 end)
 
 complex_function(11, "not printed")

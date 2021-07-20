@@ -24,11 +24,11 @@ end)
 
 local add_ten = create_to_recursion_depth(10, add_one)
 
-cfa.call(print, add_ten(2)) -- 12
+cfa.call_once_or_more(print, add_ten(2)) -- 12
 
 local add_thirty = create_to_recursion_depth(3, add_ten)
 
-cfa.call(print, add_thirty(2)) -- 32
+cfa.call_once_or_more(print, add_thirty(2)) -- 32
 
 
 cfa.run("metaprogramming_example")
