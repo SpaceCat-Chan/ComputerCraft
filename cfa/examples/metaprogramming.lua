@@ -3,11 +3,11 @@ local cfa = require"cfa"
 local function create_to_recursion_depth(depth, action)
     local layer = function(prev_layer, is_nil)
         if not is_nil then
-            return cfa.func(function(cfa)
+            return cfa.func(function()
                 return prev_layer(action(cfa.arg()))
             end)
         else
-            return cfa.func(function(cfa)
+            return cfa.func(function()
                 return action(cfa.arg())
             end)
         end
@@ -18,7 +18,7 @@ local function create_to_recursion_depth(depth, action)
     end
 end
 
-local add_one = cfa.func(function(cfa)
+local add_one = cfa.func(function()
     return cfa.arg() + 1
 end)
 
