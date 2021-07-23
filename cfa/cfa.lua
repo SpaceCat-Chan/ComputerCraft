@@ -239,9 +239,9 @@ function cfa.var(init)
     local var = cfa.var_no_init()
     local current_frame = cfa.current_parse_stack[1]
     table.insert(current_frame.instructions, {
-        type = "init_variable",
-        var = var,
-        init = init,
+        type = "assign",
+        to = var,
+        from = init,
     })
     return var
 end
@@ -480,9 +480,9 @@ local function inc_ip(a)
 end
 
 local ins = {}
-function ins.init_variable(instruction, current_frame)
-    cfa.variable_values[instruction.var.id] = evaluate(instruction.init)
-    cfa.variable_changed[instruction.var.id] = true
+function ins.assign(instruction, current_frame)
+    cfa.variable_values[instruction.to.id] = evaluate(instruction.from)
+    cfa.variable_changed[instruction.to.id] = true
     inc_ip(current_frame)
     return false
 end
@@ -495,16 +495,18 @@ end
 function ins.jump_if(instruction, current_frame)
     if evaluate(ins.exp) then
         current_frame.IP = current_frame.IP + instruction.offset
+    else
+        inc_ip(current_frame)
     end
-    inc_ip(current_frame)
     return false
 end
 
 function ins.jump_if_not(instruction, current_frame)
     if not evaluate(instruction.exp) then
         current_frame.IP = current_frame.IP + instruction.offset
+    else
+        inc_ip(current_frame)
     end
-    inc_ip(current_frame)
     return false
 end
 
@@ -513,14 +515,14 @@ function ins.exit(instruction, current_frame)
 end
 
 function ins.call(instruction, current_frame)
-    local func = cfa.variable_values[instruction.func]
+    local func = cfa.variable_values[instruction.func.id]
     for arg_index, arg in ipairs(func.args) do
         cfa.variable_values[arg.id] = evaluate(instruction.args[arg_index])
         cfa.variable_changed[arg.id] = true
     end
     table.insert(cfa.call_stack, {
         instructions = func.instructions,
-        result = func.result,
+        result = instruction.result,
         IP = 1
     })
     return false
