@@ -1,7 +1,6 @@
 ---@class cfa_env
 local cfa = {}
 cfa.next_var_id = 0
-cfa.instructions = {}
 cfa.current_parse_stack = {{
     instructions = {},
     args = {}
