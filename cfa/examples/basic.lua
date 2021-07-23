@@ -31,4 +31,4 @@ end)
 complex_function(11, "not printed")
 complex_function(9, "printed")
 
-cfa.run("basic_example")
+cfa.run("basic_example", require"cfa.save_systems.mock")
