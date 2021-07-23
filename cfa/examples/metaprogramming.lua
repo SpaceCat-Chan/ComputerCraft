@@ -1,4 +1,4 @@
-local cfa = require"cfa"
+local cfa = require"cfa.cfa"
 
 local function create_to_recursion_depth(depth, action)
     local layer = function(prev_layer, is_nil)
@@ -16,6 +16,7 @@ local function create_to_recursion_depth(depth, action)
     for x = 1,depth do
         current_layer = layer(current_layer, x == 1)
     end
+    return current_layer
 end
 
 local add_one = cfa.func(function()
@@ -31,4 +32,4 @@ local add_thirty = create_to_recursion_depth(3, add_ten)
 cfa.call_once_or_more(print, add_thirty(2)) -- 32
 
 
-cfa.run("metaprogramming_example")
+cfa.run("metaprogramming_example", require"cfa.save_systems.mock")

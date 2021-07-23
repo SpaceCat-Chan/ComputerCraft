@@ -567,8 +567,8 @@ end
 function ins.function_return(instruction, current_frame)
     if current_frame.result then
         local return_value = evaluate(instruction.exp)
-        cfa.variable_values[current_frame.result] = return_value
-        cfa.variable_changed[current_frame.result] = true
+        cfa.variable_values[current_frame.result.id] = return_value
+        cfa.variable_changed[current_frame.result.id] = true
     end
     table.remove(cfa.call_stack, #cfa.call_stack)
     cfa.call_stack[#cfa.call_stack].IP = cfa.call_stack[#cfa.call_stack].IP + 1
