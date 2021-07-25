@@ -5,7 +5,7 @@ local b = cfa.var(" world!")
 
 cfa.call_once_or_more(print, a..b)
 
-local add = cfa.func(function()
+local add = cfa.func("add", function()
     return cfa.arg() + cfa.arg()
 end)
 
@@ -31,4 +31,9 @@ end)
 complex_function(11, "not printed")
 complex_function(9, "printed")
 
-cfa.run("basic_example", require"cfa.save_systems.mock")
+local logger = require("cfa.save_systems.save_log")
+
+logger.register_system(require"cfa.save_systems.mock")
+logger.disable()
+
+cfa.run("basic_example", logger)

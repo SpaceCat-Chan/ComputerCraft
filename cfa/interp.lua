@@ -205,4 +205,4 @@ local function run_interp()
     end
 end
 
-return run_interp, init_new_interp_state, restore_interp_state
+return {run = run_interp, init=init_new_interp_state, restore=restore_interp_state}

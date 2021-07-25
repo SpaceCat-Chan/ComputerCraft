@@ -4,7 +4,8 @@ cfa.next_var_id = 0
 cfa.current_parse_stack = {{
     instructions = {},
     args = {},
-    id = 1
+    id = 1,
+    name = "main"
 }}
 cfa.functions = {cfa.current_parse_stack[1]}
 
@@ -30,12 +31,24 @@ function cfa.var(init)
     return var
 end
 
+function cfa.named_var(name, init)
+    local var = cfa.var_no_init(name)
+    local current_frame = cfa.current_parse_stack[1]
+    table.insert(current_frame.instructions, {
+        type = "assign",
+        to = var,
+        from = init,
+    })
+    return var
+end
+
 ---@return cfa_variable
-function cfa.var_no_init()
+function cfa.var_no_init(name)
     local id = cfa.next_var_id
     cfa.next_var_id = id + 1
     local var = {
-        id = id
+        id = id,
+        name = name -- only used by disassembler
     }
     setmetatable(var, expression_metatable)
     return var
@@ -113,13 +126,17 @@ function cfa.while_(exp, loop)
     end
 end
 
----@param func fun():any
+---@param func fun():any|string
+---@param func2 nil|fun():any
 ---@return cfa_variable
-function cfa.func(func)
+function cfa.func(func, func2)
+    local func_name = (type(func) == "string") and func or nil
+    local func = func2 or func
     local new_stack_frame
     new_stack_frame = {
         instructions = {},
-        args = {}
+        args = {},
+        name = func_name
     }
     table.insert(cfa.current_parse_stack, 1, new_stack_frame)
     local result = func()
@@ -138,13 +155,14 @@ function cfa.func(func)
     table.remove(cfa.current_parse_stack, 1)
     table.insert(cfa.functions, instructions)
     instructions.id = #cfa.functions
-    local func_result = cfa.var(instructions)
+    local func_result = cfa.named_var(func_name, instructions)
     return func_result
 end
 
 ---@return cfa_variable
 function cfa.arg()
-    local argument = cfa.var_no_init()
+    local name = #cfa.current_parse_stack[1].args + 1
+    local argument = cfa.var_no_init("arg "..tostring(name))
     table.insert(cfa.current_parse_stack[1].args, argument)
     return argument
 end
@@ -189,7 +207,7 @@ function cfa.exit(exit_code)
 end
 
 cfa.null = {}
-local run_interp, init_new_interp_state, restore_interp_state = require(require_path.."interp")
+local interp = require(require_path.."interp")
 
 ---@param name string
 ---@param save_system save_system
@@ -197,13 +215,14 @@ function cfa.run(name, save_system)
     cfa.exit(0)
     local last_save = save_system.load_state(name)
     if last_save then
-        restore_interp_state(last_save, cfa, expression_metatable, save_system, name)
+        interp.restore(last_save, cfa, expression_metatable, save_system, name)
     else
-        init_new_interp_state(cfa, expression_metatable, save_system, name)
+        interp.init(cfa, expression_metatable, save_system, name)
     end
-    cfa.saving_system = save_system
-    cfa.run_name = name
-    run_interp()
+    interp.run()
 end
+
+cfa.disassembler = require(require_path.."disassembler")
+cfa.disassembler.init(cfa.null, expression_metatable)
 
 return cfa
