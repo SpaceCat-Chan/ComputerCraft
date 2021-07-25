@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 local position = require("position")
 
 local arg = {...}

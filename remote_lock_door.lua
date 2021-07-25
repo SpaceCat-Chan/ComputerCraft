@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global, undefined-field
 local arg = {...}
 if #arg < 1 then
     print("usage: open_time_seconds")

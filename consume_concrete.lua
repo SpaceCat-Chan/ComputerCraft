@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 function find_powder()
     for x=1,16 do
         local slot = turtle.getItemDetail(x)
