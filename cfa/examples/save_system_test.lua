@@ -11,4 +11,4 @@ local logger = require("cfa.save_systems.save_log")
 logger.register_system(require"cfa.save_systems.basic_lua")
 logger.disable()
 
-cfa.run("basic_example", logger)
+cfa.run("save_system_test_example", logger)
