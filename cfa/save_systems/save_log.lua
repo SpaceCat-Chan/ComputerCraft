@@ -1,6 +1,6 @@
 local require_path = (...):match("(.-)[^%.]+$")
 local serpent = require(require_path.."serpent")
----@class save_system
+---@type save_system
 local save_log = {enabled = true}
 
 local actual_system

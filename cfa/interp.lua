@@ -126,7 +126,7 @@ end
 
 function ins.call_more(instruction, current_frame)
     local args = {}
-    for k,v in ipairs(instruction.args) do
+    for _,v in ipairs(instruction.args) do
         table.insert(args, evaluate(v))
     end
     local result = instruction.func(table.unpack(args))
@@ -191,6 +191,24 @@ local function init_new_interp_state(cfa, expression_metatable_, saving_system_,
     expression_metatable = expression_metatable_
     saving_system = saving_system_
     run_name = run_name_
+end
+
+local function restore_interp_state(last_save, cfa, expression_metatable_, saving_system_, run_name_)
+    variable_values = last_save.variables
+    variable_changed = {}
+    cfa_null = cfa.null
+    expression_metatable = expression_metatable_
+    saving_system = saving_system_
+    run_name = run_name_
+    call_stack = {}
+    for k,v in pairs(last_save.callstack) do
+        call_stack[k] = {
+            id = v.id,
+            IP = v.IP,
+            result = v.result,
+            instructions = cfa.functions[v.id].instructions,
+        }
+    end
 end
 
 local function run_interp()
