@@ -1,3 +1,5 @@
+package.path = "../../?.lua"..package.path
+
 local cfa = require"cfa.cfa"
 
 cfa.call_once_or_more(io.write, "hi there, please enter some text: ")

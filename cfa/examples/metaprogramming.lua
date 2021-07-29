@@ -1,3 +1,5 @@
+package.path = "../../?.lua"..package.path
+
 local cfa = require"cfa.cfa"
 
 local function create_to_recursion_depth(depth, action)

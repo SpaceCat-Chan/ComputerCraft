@@ -1,3 +1,5 @@
+package.path = "../../?.lua"..package.path
+
 local cfa = require"cfa.cfa"
 
 local a = cfa.var("hello,")
