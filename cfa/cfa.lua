@@ -1,13 +1,17 @@
 ---@class cfa_env
+local func_private = {}
 local cfa = {}
 cfa.next_var_id = 0
 cfa.current_parse_stack = {{
     instructions = {},
     args = {},
     id = 1,
-    name = "main"
+    name = "main",
+    func_depth = 1,
+    is_function = func_private
 }}
 cfa.functions = {cfa.current_parse_stack[1]}
+
 
 ---@class cfa_expression
 local ignore
@@ -48,9 +52,11 @@ function cfa.var_no_init(name)
     cfa.next_var_id = id + 1
     local var = {
         id = id,
-        name = name -- only used by disassembler
+        name = name, -- only used by disassembler
+        func_depth = #cfa.current_parse_stack
     }
     setmetatable(var, expression_metatable)
+    local current_frame = cfa.current_parse_stack[1]
     return var
 end
 
@@ -136,7 +142,10 @@ function cfa.func(func, func2)
     new_stack_frame = {
         instructions = {},
         args = {},
-        name = func_name
+        name = func_name,
+        func_depth = #cfa.current_parse_stack + 1,
+        parent = cfa.current_parse_stack[1],
+        is_function = func_private
     }
     table.insert(cfa.current_parse_stack, 1, new_stack_frame)
     local result = func()
@@ -215,9 +224,9 @@ function cfa.run(name, save_system)
     cfa.exit(0)
     local last_save = save_system.load_state(name)
     if last_save then
-        interp.restore(last_save, cfa, expression_metatable, save_system, name)
+        interp.restore(last_save, cfa, expression_metatable, save_system, name, func_private)
     else
-        interp.init(cfa, expression_metatable, save_system, name)
+        interp.init(cfa, expression_metatable, save_system, name, func_private)
     end
     interp.run()
 end

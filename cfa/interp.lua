@@ -1,10 +1,32 @@
 
 local call_stack
-local variable_values, variable_changed = {}, {}
 local cfa_null
 local expression_metatable
 local saving_system
 local run_name
+local func_private
+
+local function find_variable(var)
+    local current_frame = call_stack[#call_stack]
+    local variables = current_frame.variables
+    local difference = current_frame.func_depth - rawget(var, "func_depth")
+    while difference > 0 do
+        variables = variables.parent
+        difference = difference - 1
+    end
+    return variables[rawget(var, "id")]
+end
+
+local function assign_to_variable(var, value)
+    local current_frame = call_stack[#call_stack]
+    local variables = current_frame.variables
+    local difference = current_frame.func_depth - rawget(var, "func_depth")
+    while difference > 0 do
+        variables = variables.parent
+        difference = difference - 1
+    end
+    variables[rawget(var, "id")] = value
+end
 
 local evals = {}
 local function evaluate(expression)
@@ -13,10 +35,22 @@ local function evaluate(expression)
     end
     if type(expression) ~= "table"
     or getmetatable(expression) ~= expression_metatable then
+        if type(expression) == "table" and expression.is_function == func_private then
+            local new_func = {
+                instructions = expression.instructions,
+                args = expression.args,
+                name = expression.name,
+                func_depth = expression.func_depth,
+                id = expression.id,
+                parent = call_stack[#call_stack].variables,
+                is_function = func_private,
+            }
+            return new_func
+        end
         return expression
     end
     if rawget(expression, "id") then
-        return variable_values[rawget(expression, "id")]
+        return find_variable(expression)
     end
     return evals[rawget(expression, "type")](expression)
 end
@@ -76,8 +110,7 @@ end
 
 local ins = {}
 function ins.assign(instruction, current_frame)
-    variable_values[instruction.to.id] = evaluate(instruction.from)
-    variable_changed[instruction.to.id] = true
+    assign_to_variable(instruction.to, evaluate(instruction.from))
     inc_ip(current_frame)
     return false
 end
@@ -110,17 +143,23 @@ function ins.exit(instruction, current_frame)
 end
 
 function ins.call(instruction, current_frame)
-    local func = variable_values[instruction.func.id]
-    for arg_index, arg in ipairs(func.args) do
-        variable_values[arg.id] = evaluate(instruction.args[arg_index])
-        variable_changed[arg.id] = true
-    end
-    table.insert(call_stack, {
+    local func = find_variable(instruction.func)
+    local frame = {
         instructions = func.instructions,
         result = instruction.result,
         IP = 1,
-        id = func.id
-    })
+        id = func.id,
+        func_depth = func.func_depth,
+        variables = {parent = func.parent},
+    }
+    local args = {}
+    for arg_index, _ in ipairs(func.args) do
+        args[arg_index] = evaluate(instruction.args[arg_index])
+    end
+    table.insert(call_stack, frame)
+    for arg_index, arg in ipairs(func.args) do
+        assign_to_variable(arg, args[arg_index])
+    end
     return false
 end
 
@@ -130,16 +169,12 @@ function ins.call_more(instruction, current_frame)
         table.insert(args, evaluate(v))
     end
     local result = instruction.func(table.unpack(args))
-    variable_values[instruction.result.id] = result
-    variable_changed[instruction.result.id] = true
+    assign_to_variable(instruction.result, result)
     inc_ip(current_frame)
     saving_system.save(
         run_name,
-        variable_values,
-        variable_changed,
         call_stack
     )
-    variable_changed = {}
     return false
 end
 
@@ -147,11 +182,8 @@ function ins.call_less(instruction, current_frame)
     inc_ip(current_frame)
     saving_system.save(
         run_name,
-        variable_values,
-        variable_changed,
         call_stack
     )
-    variable_changed = {}
     local args = {}
     for k,v in ipairs(instruction.args) do
         table.insert(args, evaluate(v))
@@ -163,10 +195,11 @@ end
 function ins.function_return(instruction, current_frame)
     if current_frame.result then
         local return_value = evaluate(instruction.exp)
-        variable_values[current_frame.result.id] = return_value
-        variable_changed[current_frame.result.id] = true
+        table.remove(call_stack, #call_stack)
+        assign_to_variable(current_frame.result, return_value)
+    else
+        table.remove(call_stack, #call_stack)
     end
-    table.remove(call_stack, #call_stack)
     call_stack[#call_stack].IP = call_stack[#call_stack].IP + 1
     return false
 end
@@ -183,31 +216,32 @@ setmetatable(ins, {
     end
 })
 
-local function init_new_interp_state(cfa, expression_metatable_, saving_system_, run_name_)
-    call_stack = {{instructions = cfa.current_parse_stack[1].instructions, IP = 1, id = 1}}
-    variable_values = {}
-    variable_changed = {}
+local function init_new_interp_state(cfa, expression_metatable_, saving_system_, run_name_, func_private_)
+    call_stack = {
+        {
+            instructions = cfa.current_parse_stack[1].instructions,
+            IP = 1,
+            id = 1,
+            variables = {},
+            func_depth = 1
+        }
+    }
     cfa_null = cfa.null
     expression_metatable = expression_metatable_
     saving_system = saving_system_
     run_name = run_name_
+    func_private = func_private_
 end
 
-local function restore_interp_state(last_save, cfa, expression_metatable_, saving_system_, run_name_)
-    variable_values = last_save.variables
-    variable_changed = {}
+local function restore_interp_state(last_save, cfa, expression_metatable_, saving_system_, run_name_, func_private_)
     cfa_null = cfa.null
     expression_metatable = expression_metatable_
     saving_system = saving_system_
     run_name = run_name_
-    call_stack = {}
-    for k,v in pairs(last_save.callstack) do
-        call_stack[k] = {
-            id = v.id,
-            IP = v.IP,
-            result = v.result,
-            instructions = cfa.functions[v.id].instructions,
-        }
+    call_stack = last_save.callstack
+    func_private = func_private_
+    for _,v in pairs(call_stack) do
+        v.instructions = cfa.current_parse_stack[v.id].instructions
     end
 end
 
