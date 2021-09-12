@@ -1,1 +1,0 @@
-do local _={callstack={{id=1,func_depth=1,variables={[1]="asdf",[2]="file (0x7f6591a2b6c0)",[3]="",[0]="file (0x7f6591a2b6c0)"},IP=6}}};return _;end
