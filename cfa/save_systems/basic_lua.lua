@@ -16,16 +16,16 @@ function basic_lua.load_state(run_name)
     return deserialized
 end
 
-function basic_lua.save(run_name, variables, changed_variables, callstack)
-    local id_based_callstack = {}
+function basic_lua.save(run_name, callstack)
+    local instruction_backup = {}
     for k,v in pairs(callstack) do
-        id_based_callstack[k] = {
-            result = v.result,
-            id = v.id,
-            IP = v.IP,
-        }
+        instruction_backup[k] = v.instructions
+        v.instructions = nil
     end
-    local serialized = serpent.dump{variables = variables, callstack = id_based_callstack}
+    local serialized = serpent.dump{callstack = callstack}
+    for k,v in pairs(callstack) do
+        v.instructions = instruction_backup[k]
+    end
     local filename = "./"..run_name..".lua"
     local file, err = io.open(filename, "wb")
     file:write(serialized)
